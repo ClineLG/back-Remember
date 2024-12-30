@@ -181,7 +181,7 @@ router.put("/addThink", isAuthenticated, fileUpload(), async (req, res) => {
   try {
     // console.log("REQBODYTHINKS", req.body);
 
-    const { think } = req.body;
+    const { think, pro, perso, emergency, canWait } = req.body;
 
     const user = await User.findById(req.body.user);
     if (req.files) {
@@ -196,6 +196,10 @@ router.put("/addThink", isAuthenticated, fileUpload(), async (req, res) => {
           secure_url: image.secure_url,
           public_id: image.public_id,
         },
+        pro: pro,
+        perso: perso,
+        canWait: canWait,
+        emergency: emergency,
       });
     } else {
       user.thinks.push({ think: think });
