@@ -22,6 +22,7 @@ cloudinary.config({
 });
 
 const isAuthenticated = require("../middleware/isAuthenticated");
+const { todo } = require("node:test");
 
 router.post("/signup", fileUpload(), async (req, res) => {
   try {
@@ -66,6 +67,8 @@ router.post("/signup", fileUpload(), async (req, res) => {
       token: newUser.token,
       username: newUser.username,
       avatar: newUser.avatar,
+      todos: null,
+      thinks: null,
     });
   } catch (error) {
     console.log(error.message);
