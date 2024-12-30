@@ -35,7 +35,7 @@ router.post("/signup", fileUpload(), async (req, res) => {
 
     const isUserExist = await User.findOne({ email: email });
     if (isUserExist) {
-      return res.status(400).json({ messaeg: "email already used" });
+      return res.status(400).json({ message: "email already used" });
     }
     const salt = uid2(24);
     const hash = SHA256(password + salt).toString(encBase64);
