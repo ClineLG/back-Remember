@@ -108,6 +108,16 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.get("/allTasks", isAuthenticated, async (req, res) => {
+  try {
+    const tasks = await User.findById(req.body.user).select("todos");
+    res.status(200).json(tasks);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 router.put("/addTask", isAuthenticated, async (req, res) => {
   try {
     console.log(req.body);
@@ -153,6 +163,17 @@ router.delete("/deleteTask/:id", isAuthenticated, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+router.get("/allThoughts", isAuthenticated, async (req, res) => {
+  try {
+    const thoughts = await User.findById(req.body.user).select("thinks");
+    res.status(200).json(thoughts);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 router.put("/addThink", isAuthenticated, fileUpload(), async (req, res) => {
   try {
     // console.log("REQBODYTHINKS", req.body);
