@@ -125,9 +125,16 @@ router.put("/addTask", isAuthenticated, async (req, res) => {
   try {
     console.log(req.body);
 
-    const { task } = req.body;
+    const { task, pro, perso, emergency } = req.body;
     const user = await User.findById(req.body.user);
-    user.todos.push({ task: task });
+
+    user.todos.push({
+      task: task,
+      pro: pro,
+      perso: perso,
+      emergency: emergency,
+    });
+
     await user.save();
     res.status(200).json(user.todos[user.todos.length - 1]);
   } catch (error) {
@@ -181,7 +188,7 @@ router.put("/addThink", isAuthenticated, fileUpload(), async (req, res) => {
   try {
     // console.log("REQBODYTHINKS", req.body);
 
-    const { think, pro, perso, emergency, canWait } = req.body;
+    const { think, title } = req.body;
 
     const user = await User.findById(req.body.user);
     if (req.files) {
@@ -191,18 +198,15 @@ router.put("/addThink", isAuthenticated, fileUpload(), async (req, res) => {
       });
 
       user.thinks.push({
+        title: title,
         think: think,
         image: {
           secure_url: image.secure_url,
           public_id: image.public_id,
         },
-        pro: pro,
-        perso: perso,
-        canWait: canWait,
-        emergency: emergency,
       });
     } else {
-      user.thinks.push({ think: think });
+      user.thinks.push({ title: title, think: think });
     }
     console.log(user.thinks[user.thinks.length - 1]);
     await user.save();

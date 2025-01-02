@@ -5,16 +5,16 @@ const todoSchema = new mongoose.Schema({
   task: { type: String },
   done: { type: Boolean, default: false },
   date: { type: Date, default: Date.now },
+  pro: { type: Boolean, default: false },
+  perso: { type: Boolean, default: true },
+  emergency: { type: Boolean, default: false },
 });
 
 const thinkSchema = new mongoose.Schema({
+  title: { type: String },
   think: { type: String },
   date: { type: Date, default: Date.now },
   image: { type: Object },
-  pro: { type: Boolean, default: false },
-  perso: { type: Boolean, default: true },
-  canWait: { type: Boolean, default: true },
-  emergency: { type: Boolean, default: false },
 });
 
 const userSchema = new mongoose.Schema({
