@@ -23,6 +23,7 @@ cloudinary.config({
 
 const isAuthenticated = require("../middleware/isAuthenticated");
 const { todo } = require("node:test");
+const e = require("express");
 
 router.post("/signup", fileUpload(), async (req, res) => {
   try {
@@ -67,8 +68,7 @@ router.post("/signup", fileUpload(), async (req, res) => {
       token: newUser.token,
       username: newUser.username,
       avatar: newUser.avatar,
-      todos: null,
-      thinks: null,
+      email: email,
     });
   } catch (error) {
     console.log(error.message);
@@ -104,10 +104,65 @@ router.post("/login", async (req, res) => {
       token: token,
       username: username,
       avatar: avatar,
+      email: email,
     });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ message: error.message });
+  }
+});
+
+router.put("/update", isAuthenticated, fileUpload(), async (req, res) => {
+  try {
+    const { password, username, email } = req.body;
+    const user = await User.findById(req.body.user);
+
+    if (req.files) {
+      const convertedImage = convertToBase64(req.files.image);
+      const image = await cloudinary.uploader.upload(convertedImage, {
+        folder: `Rememeber/user/${user._id}`,
+      });
+      user.avatar = {
+        secure_url: image.secure_url,
+        public_id: image.public_id,
+      };
+    }
+    if (password) {
+      const newhash = SHA256(password + user.salt).toString(encBase64);
+      user.hash = newhash;
+    }
+    if (username) {
+      user.username = username;
+    }
+    if (email) {
+      const isEmailExist = await User.findOne({ email: email });
+      if (isEmailExist) {
+        return res.status(401).json({ message: "email already used" });
+      } else {
+        user.email = email;
+      }
+    }
+    await user.save();
+    res.status(201).json({
+      _id: user._id,
+      token: user.token,
+      username: user.username,
+      avatar: user.avatar,
+      email: user.email,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+});
+
+router.delete("/deleteUser", isAuthenticated, async (req, res) => {
+  try {
+    const userToDelete = await User.findByIdAndDelete(req.body.user);
+    res.status(201).json({ message: "profile deleted" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
   }
 });
 
