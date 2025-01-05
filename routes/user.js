@@ -231,8 +231,69 @@ router.delete("/deleteTask/:id", isAuthenticated, async (req, res) => {
 
 router.get("/allThoughts", isAuthenticated, async (req, res) => {
   try {
+    const { search, date, page } = req.query;
+
     const thoughts = await User.findById(req.body.user).select("thinks");
-    res.status(200).json(thoughts);
+    const arrthougths = thoughts.thinks;
+    const thougthsCounter = arrthougths.length;
+    console.log(thougthsCounter);
+
+    const ideas = [];
+    const afterDate = [];
+    const afterPage = [];
+    for (let i = 0; i < thougthsCounter; i++) {
+      if (search) {
+        const newSearch = search.toUpperCase();
+        const arrSearch = newSearch.split(" ");
+        for (let j = 0; j < arrSearch.length; j++) {
+          const titleUp = arrthougths[i].title.toUpperCase();
+          if (arrthougths[i].think) {
+            const thinkUp = arrthougths[i].think.toUpperCase();
+            if (thinkUp.includes(arrSearch[j])) {
+              ideas.push(arrthougths[i]);
+            }
+          }
+          if (titleUp.includes(arrSearch[j])) {
+            ideas.push(arrthougths[i]);
+          }
+        }
+      } else {
+        ideas.push(arrthougths[i]);
+      }
+    }
+    for (let k = 0; k < ideas.length; k++) {
+      if (date) {
+        const dateToFind = Date(date);
+
+        const dateToString = ideas[k].date.toString();
+        const tabDate = dateToString.split(" ").slice(0, 4).join(" ");
+
+        const tabDate2 = date.split(" ").slice(0, 4).join(" ");
+
+        if (tabDate === tabDate2) {
+          afterDate.push(ideas[k]);
+        }
+      } else {
+        afterDate.push(ideas[k]);
+      }
+    }
+    const limit = 20;
+
+    const newIdeas = [...new Set(afterDate)];
+    if (page) {
+      valeurMin = (page - 1) * limit;
+      valeurMax = valeurMin + limit;
+    } else {
+      valeurMin = 0;
+      valeurMax = limit;
+    }
+
+    for (let l = 0; l < newIdeas.length; l++) {
+      if (l >= valeurMin && l < valeurMax) {
+        afterPage.push(newIdeas[l]);
+      }
+    }
+    res.status(200).json({ counter: newIdeas.length, thinks: afterPage });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ message: error.message });
